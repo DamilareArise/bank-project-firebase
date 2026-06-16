@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="">
+
+    <style>
+        table {
+            width: 50%;
+            text-align: center;
+            border: 1px solid;
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            border: 1px solid;
+        }
+    </style>
+</head>
+
+<body>
+    <h4>Welcome back <span id="displayScreen"></span></h4>
+    <div><b>Balance: </b> $<span id="balanceScreen"></span></div>
+    <div><b>Account No: </b> <span id="numberScreen"></span></div>
+
+    <div id="pinSetup">
+        <input type="text" placeholder="PIN" id="userPin">
+        <button id="setPin">Set pin</button>
+    </div>
+
+    <p id="alertScreen"></p>
+    <hr>
+    <p>Deposit</p>
+    <input type="number" placeholder="Amount" id="depositAmount"><button id="depositAction">Deposit</button>
+    <hr>
+    <p>Withdrawal</p>
+    <input type="number" placeholder="Amount" id="withdrawAmount"><button id="withdrawAction">Withdraw</button>
+    <hr>
+
+    <h3>Transaction History</h3>
+    <table>
+        <thead>
+            <th>ID</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Date & Time</th>
+        </thead>
+        <tbody id="trxScreen">
+
+        </tbody>
+    </table>
+    <hr>
+    <button id="logoutUser">Logout</button>
+
+
+    <script type="module">
+        import { Bank, firebaseConfig } from "./config.js"
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+        const myBank = new Bank()
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log(user);
+                getDashboard()
+            } else {
+                window.location.href = "./get_started.html"
+            }
+        })
+
+        function getDashboard() {
+            let user = auth.currentUser
+            balanceScreen.innerHTML = 0
+            displayScreen.innerHTML = user.displayName
+            numberScreen.innerHTML = "123456789"
+            if (res['pin'] == null) {
+                pinSetup.style.display = "block"
+            } else {
+                pinSetup.style.display = "none"
+            }
+
+
+            // load transaction history
+            let trnxs = myBank.trxHistory(res["account_no"])
+            console.log(trnxs);
+
+            trxScreen.innerHTML = ""
+            trnxs.reverse().forEach((trnx) => {
+                let dt = new Date(trnx.datetime)
+                trxScreen.innerHTML += `
+                    <tr>
+                        <td>${trnx.txId}</td>
+                        <td>$${trnx.amount}</td>
+                        <td>${trnx.type}</td>
+                        <td>${dt.toLocaleString()}</td>
+                    </tr>
+                `
+            })
+        }
+
+        logoutUser.addEventListener("click", () => {
+            signOut(auth).then(() => {
+                window.location.href = "./get_started.html"  
+            }).catch((error) => {
+                console.log('An error occured');
+                
+            });
+        })
+
+
+        depositAction.addEventListener("click", () => {
+            let email = localStorage.loggedEmail
+            let res = myBank.deposit(email, parseFloat(depositAmount.value))
+            alertScreen.innerHTML = res
+            setTimeout(() => {
+                alertScreen.innerHTML = ""
+            }, 3000)
+            depositAmount.value = ""
+            getDashboard()
+        })
+
+        withdrawAction.addEventListener("click", () => {
+            let email = localStorage.loggedEmail
+            let res = myBank.withdraw(email, parseFloat(withdrawAmount.value))
+            alertScreen.innerHTML = res
+            setTimeout(() => {
+                alertScreen.innerHTML = ""
+            }, 3000)
+            withdrawAmount.value = ""
+            getDashboard()
+        })
+
+
+        setPin.addEventListener("click", () => {
+            let email = localStorage.loggedEmail
+            let res = myBank.update_pin(email, userPin.value)
+            alertScreen.innerHTML = res
+            getDashboard()
+
+        })
+
+
+        let db = {
+            users: {
+                user1:{
+                    uid: 2345678,
+                    name: "Aminat",
+                    email: "amina@gmail",
+                    account_no: 2345678,
+                    balance: 45678,
+                    pin: 1123
+                    
+                }
+            },
+            blogs: {
+                blog1: {
+                    title: 'qwerty',
+                    content: '12345678',
+                    author: 2345678
+                }
+            },
+            trnxs: {
+                tranx1:{
+                    type: "credit",
+                    amount: 23456,
+                    reciever:  2345678,
+                    sender:   2345678,
+                
+                }
+            }
+
+        }
+
+    </script>
+</body>
+
+</html>

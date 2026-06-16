@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p id="alertScreen"></p>
+
+    <p>Register</p>
+    <input type="text" placeholder="Fullname" id="user_name">
+    <input type="email" placeholder="Email" id="user_email">
+    <input type="password" placeholder="Password" id="user_pass">
+    <button id="registerUser">Register</button>
+
+    <p>Login</p>
+    <input type="email" placeholder="Email" id="login_email">
+    <input type="password" placeholder="Password" id="login_pass">
+    <button id="loginUser">Log in</button>
+    <button id="signinGoogle">continue with google</button>
+    <script type="module">
+        // import {Bank, Transaction} from "./config.js"
+        import { Bank, firebaseConfig } from "./config.js"
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider()
+
+        let myBank = new Bank()
+        // console.log(myBank);
+
+        registerUser.addEventListener("click", () => {
+            // let res = myBank.create_account(user_name.value, user_email.value, user_pass.value)
+            registerUser.innerHTML = "Loading..."
+            createUserWithEmailAndPassword(auth, user_email.value, user_pass.value)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log(user);
+                    alertScreen.innerHTML = "Registration successful"
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    alertScreen.innerHTML = errorMessage
+                    // ..
+                });
+            registerUser.innerHTML = "Register"
+        })
+
+
+        loginUser.addEventListener("click", () => {
+            loginUser.innerHTML = "Loading..."
+            signInWithEmailAndPassword(auth, login_email.value, login_pass.value)
+                .then((userCredential) => {
+                    // Signed in 
+                    const user = userCredential.user;
+                    window.location.href = "./dashboard.html"
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                });
+            loginUser.innerHTML = "Log in"
+        })
+
+
+        signinGoogle.addEventListener("click", () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    const user = result.user;
+                    window.location.href = "./dashboard.html"
+                })
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    alertScreen.innerHTML = errorMessage
+                })
+
+        })
+    </script>
+</body>
+
+</html>

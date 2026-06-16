@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>Welcome to mybank</h3>
+    <p id="myScreen"></p>
+    <a href="./get_started.html"><button>Get Started</button></a>
+
+    <hr>
+    <h1>
+        <span id="myHour">00</span>:
+        <span id="myMin">00</span>:
+        <span id="mySec">00</span>:
+        <span id="myMil">000</span>
+    </h1>
+    <button id="startCount">start</button>
+    <button id="stopCount">stop</button>
+    <button id="resetCount">reset</button>
+
+    <script>
+        // let rand = Math.round(Math.random() * 100000000)
+        // let account_no = "20"+rand
+        // console.log(account_no)
+
+        // let myDate = new Date()
+        // console.log(myDate.toLocaleString());
+        // myScreen.innerHTML = myDate.toLocaleString()
+
+        // let timeoutId = setTimeout(()=>{
+        //     alert("Hello...")
+        // }, 3000)
+
+        // clearTimeout(timeoutId)
+        // setInterval(()=>{
+        //     let myDate = new Date()
+        //     myScreen.innerHTML = myDate.toLocaleString()
+        // }, 1000)
+
+        let countMil = 0
+        let countSec = 0
+        let timeId;
+
+        startCount.addEventListener("click", ()=>{
+            if(timeId){
+                clearInterval(timeId)
+            }
+            
+            timeId = setInterval(()=>{
+                if(countMil === 999){
+                    countMil = 0
+                    countSec += 1
+                }
+                myMil.innerHTML = countMil
+                mySec.innerHTML = countSec
+                countMil += 1
+            }, 1)
+
+        })
+
+        stopCount.addEventListener("click", ()=>{
+            clearInterval(timeId)
+        })
+
+        resetCount.addEventListener("click", ()=>{
+            clearInterval(timeId)
+            myMil.innerHTML = "000"
+            mySec.innerHTML = "00"
+            countMil = 0
+            countSec = 0
+        })
+
+        let mydate = new Date()
+        // console.log(mydate.toLocaleString());
+
+        // let timeId = setTimeout(()=>{
+        //     alert()
+        // }, 3000)
+
+        // clearTimeout(timeId)
+        
+
+        // setInterval(()=>{
+        //     console.log("yo");
+            
+        // }, 3000)
+        
+    </script>
+</body>
+</html>

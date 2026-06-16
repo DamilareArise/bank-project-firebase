@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="">
+
+    <style>
+        table {
+            width: 50%;
+            text-align: center;
+            border: 1px solid;
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            border: 1px solid;
+        }
+    </style>
+</head>
+
+<body>
+    <h4>Welcome back <span id="displayScreen"></span></h4>
+    <div><b>Balance: </b> $<span id="balanceScreen"></span></div>
+    <div><b>Account No: </b> <span id="numberScreen"></span></div>
+
+    <div id="pinSetup">
+        <input type="text" placeholder="PIN" id="userPin">
+        <button id="setPin">Set pin</button>
+    </div>
+
+    <p id="alertScreen"></p>
+    <hr>
+    <p>Deposit</p>
+    <input type="number" placeholder="Amount" id="depositAmount"><button id="depositAction">Deposit</button>
+    <hr>
+    <p>Withdrawal</p>
+    <input type="number" placeholder="Amount" id="withdrawAmount"><button id="withdrawAction">Withdraw</button>
+    <hr>
+
+    <h3>Transaction History</h3>
+    <table>
+        <thead>
+            <th>ID</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Date & Time</th>
+        </thead>
+        <tbody id="trxScreen">
+
+        </tbody>
+    </table>
+    <hr>
+    <button id="logoutUser">Logout</button>
+
+
+
+    <script type="module">
+        import FirebaseBank from "./config.js"
+
+        const myBank = new FirebaseBank()
+
+        myBank.checkUserAuth()
+            .then((res) => {
+                if (!res['status']) {
+                    window.location.href = "./index.html"
+                }
+                let user = res['data']
+                displayScreen.innerHTML = user.fullname
+                balanceScreen.innerHTML = user.balance
+                numberScreen.innerHTML = user.account_no
+                console.log(user);
+            })
+
+        logoutUser.addEventListener("click", () => {
+            myBank.logout()
+        })
+
+
+        depositAction.addEventListener("click", () =>{
+            let amount = depositAmount.value
+            let res = myBank.performDeposit(amount)
+            console.log(res);
+            
+
+        })
+
+
+    </script>
+
+</body>
+
+</html>

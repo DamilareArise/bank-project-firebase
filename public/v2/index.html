@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Welcome</h1>
+     <p id="alertScreen"></p>
+
+    <p>Register</p>
+    <input type="text" placeholder="Fullname" id="user_name">
+    <input type="email" placeholder="Email" id="user_email">
+    <input type="password" placeholder="Password" id="user_pass">
+    <button id="registerUser">Register</button>
+
+    <p>Login</p>
+    <input type="email" placeholder="Email" id="login_email">
+    <input type="password" placeholder="Password" id="login_pass">
+    <button id="loginUser">Log in</button>
+    <button id="signinGoogle">continue with google</button>
+
+    <script type="module">
+        import FirebaseBank from "./config.js"
+
+        const myBank = new FirebaseBank()
+
+        registerUser.addEventListener("click", ()=>{
+            let fullname = user_name.value
+            let email = user_email.value
+            let password = user_pass.value
+            myBank.registerWithEmailAndPassword(fullname, email, password)
+            .then((res)=>{
+                console.log(res);
+                alertScreen.innerHTML = res['message']
+            })
+        })
+
+        signinGoogle.addEventListener("click", ()=>{
+            myBank.registerWithGoogle()
+            .then((res)=>{
+                console.log(res);
+                alertScreen.innerHTML = res['message']
+                if(res['status']){
+                    window.location.href = "./dashboard.html"
+                }
+            })
+        })
+
+        loginUser.addEventListener("click", ()=>{
+            let email = login_email.value
+            let password = login_pass.value
+
+            myBank.loginWithEmailAndPassword(email, password)
+            .then((res)=>{
+                alertScreen.innerHTML = res['message']
+                if(res['status']){
+                    window.location.href = "./dashboard.html"
+                }
+            })
+
+        })
+
+    </script>
+</body>
+</html>
