@@ -41,6 +41,12 @@
     <input type="number" placeholder="Amount" id="withdrawAmount"><button id="withdrawAction">Withdraw</button>
     <hr>
 
+    <p>Transfer</p>
+    <input type="text" placeholder="Recipient Account" id="transferAccount">
+    <input type="number" placeholder="Amount" id="transferAmount">
+    <button id="transferAction">Transfer</button>
+    <hr>
+
     <h3>Transaction History</h3>
     <table>
         <thead>
@@ -63,17 +69,26 @@
 
         const myBank = new FirebaseBank()
 
+
+        const reload_dashboard = (user)=>{
+                displayScreen.innerHTML = user.fullname
+                balanceScreen.innerHTML = user.balance
+                numberScreen.innerHTML = user.account_no
+                console.log(user);
+        }
+
+
         myBank.checkUserAuth()
             .then((res) => {
                 if (!res['status']) {
                     window.location.href = "./index.html"
                 }
                 let user = res['data']
-                displayScreen.innerHTML = user.fullname
-                balanceScreen.innerHTML = user.balance
-                numberScreen.innerHTML = user.account_no
-                console.log(user);
+                reload_dashboard(user)
             })
+
+
+        
 
         logoutUser.addEventListener("click", () => {
             myBank.logout()
@@ -83,11 +98,22 @@
         depositAction.addEventListener("click", () =>{
             let amount = depositAmount.value
             let res = myBank.performDeposit(amount)
-            console.log(res);
-            
-
+            // console.log(res);
+            alertScreen.innerHTML = res['message']
+            if(res['status']){
+                let user = res['data']
+                depositAmount.value = ''
+                reload_dashboard(user)
+            }
         })
 
+
+        transferAction.addEventListener('click', ()=>{
+            let recipient_acct = transferAccount.value
+            let amount = transferAmount.value
+            myBank.performTransfer(recipient_acct, amount)
+
+        })
 
     </script>
 

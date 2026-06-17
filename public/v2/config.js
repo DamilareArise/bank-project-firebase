@@ -194,7 +194,7 @@ export default class FirebaseBank{
         if (amount < 1){
             return {
                 status: false,
-                message: "Invalid"
+                message: "Invalid amount"
             }
         }
         // console.log(this.uid);
@@ -214,4 +214,41 @@ export default class FirebaseBank{
             data: this.current_user
         }
     }
+
+
+    performTransfer(recipient_acct, amount){
+        if(recipient_acct=="" || amount == null){
+            return {
+                status: false,
+                message: "Recipient account and amount required"
+            }
+        }
+
+        if(amount > this.current_user.balance){
+            return {
+                status: false,
+                message: "Insufficient funds"
+            }
+        }
+
+        const userRef = ref(this.database, "users/")
+        let recipient = new Promise((resolve)=>{
+            onValue(userRef, (snapshot)=>{
+                const data = snapshot.val()
+                let allusers = Object.values(data)
+                // console.log(allusers[0]);
+                let res = allusers.find(user => user.account_no == recipient_acct)
+                resolve(res)
+            })
+        })
+
+        console.log(recipient);
+        
+    }
 }
+
+
+// let users =  {
+//     gthg2uoUZbvHZ6XCueRvktPhzy2 : {account_no: '2064274564', balance: 6000, email: 'tobioyee@gmail.com', fullname: 'Good', userId: '0gthg2uoUZbvHZ6XCueRvktPhzy2'},
+
+// }
