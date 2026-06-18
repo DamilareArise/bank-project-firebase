@@ -216,11 +216,29 @@ export default class FirebaseBank{
     }
 
 
-    performTransfer(recipient_acct, amount){
-        if(recipient_acct=="" || amount == null){
+    getUserByAccount(recipient_acct){
+        let recipient = new Promise((resolve)=>{
+
+            const userRef = ref(this.database, "users/")
+            onValue(userRef, (snapshot)=>{
+
+                const data = snapshot.val()
+                let allusers = Object.values(data)
+                // console.log(allusers[0]);
+                let res = allusers.find(user => user.account_no == recipient_acct)
+                resolve(res)
+
+            })
+        })
+        return recipient
+    }
+
+
+    performTransfer(recipient, amount){
+        if(amount == null || amount < 1){
             return {
                 status: false,
-                message: "Recipient account and amount required"
+                message: "Valid amount required"
             }
         }
 
@@ -231,18 +249,30 @@ export default class FirebaseBank{
             }
         }
 
-        const userRef = ref(this.database, "users/")
-        let recipient = new Promise((resolve)=>{
-            onValue(userRef, (snapshot)=>{
-                const data = snapshot.val()
-                let allusers = Object.values(data)
-                // console.log(allusers[0]);
-                let res = allusers.find(user => user.account_no == recipient_acct)
-                resolve(res)
-            })
-        })
+        if(recipient.account_no === this.current_user.account_no){
+            return {
+                status: false,
+                message: "Can't transfer to self"
+            }
+        }
 
-        console.log(recipient);
+        let recipient_balance = parseFloat(recipient.balance) 
+        recipient_balance += parseFloat(amount)
+
+        recipient.balance = recipient_balance
+        this.current_user.balance -= parseFloat(amount)
+
+        let recipient_ref = ref(this.database, "users/" + recipient.userId)
+        set(recipient_ref, recipient)
+
+        let userRef = ref(this.database, "users/" + this.current_user.userId)
+        set(userRef, this.current_user)
+        
+        return {
+            status: true,
+            message: "Transaction successful",
+            data: this.current_user
+        }
         
     }
 }

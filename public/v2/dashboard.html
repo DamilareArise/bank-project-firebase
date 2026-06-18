@@ -70,11 +70,11 @@
         const myBank = new FirebaseBank()
 
 
-        const reload_dashboard = (user)=>{
-                displayScreen.innerHTML = user.fullname
-                balanceScreen.innerHTML = user.balance
-                numberScreen.innerHTML = user.account_no
-                console.log(user);
+        const reload_dashboard = (user) => {
+            displayScreen.innerHTML = user.fullname
+            balanceScreen.innerHTML = user.balance
+            numberScreen.innerHTML = user.account_no
+            console.log(user);
         }
 
 
@@ -88,19 +88,19 @@
             })
 
 
-        
+
 
         logoutUser.addEventListener("click", () => {
             myBank.logout()
         })
 
 
-        depositAction.addEventListener("click", () =>{
+        depositAction.addEventListener("click", () => {
             let amount = depositAmount.value
             let res = myBank.performDeposit(amount)
             // console.log(res);
             alertScreen.innerHTML = res['message']
-            if(res['status']){
+            if (res['status']) {
                 let user = res['data']
                 depositAmount.value = ''
                 reload_dashboard(user)
@@ -108,11 +108,32 @@
         })
 
 
-        transferAction.addEventListener('click', ()=>{
+        transferAction.addEventListener('click', () => {
             let recipient_acct = transferAccount.value
             let amount = transferAmount.value
-            myBank.performTransfer(recipient_acct, amount)
 
+            if(recipient_acct == ""){
+                alertScreen.innerHTML = "Recipient account required"
+                return;
+            }
+
+            myBank.getUserByAccount(recipient_acct)
+            .then((recipient)=>{
+                console.log(recipient);
+                
+                if(recipient){
+                    let res =  myBank.performTransfer(recipient, amount)
+                    // console.log(res);
+                    alertScreen.innerHTML = res['message']
+                    if(res['status']){
+                        let user = res['data']
+                        reload_dashboard(user)
+                    }
+                }else{
+                    alertScreen.innerHTML = "Account not found"
+                }
+
+            })
         })
 
     </script>
